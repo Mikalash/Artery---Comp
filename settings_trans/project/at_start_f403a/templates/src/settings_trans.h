@@ -31,9 +31,11 @@ struct settings_str
 };
 
 #define sett_size sizeof(struct settings_str)
+//#define sett_size 4//for debug
 
-static struct settings_str settings;
+static struct settings_str* settings = (struct settings_str*) FLASH_ADRESS;
 
+void debug_f(uint8_t kek);
 //------------------------------------------------------------------------------------------------------------------
 error_status convert_sett_to_data(const struct settings_str* sett, uint8_t* data, const uint32_t data_size);
 
@@ -43,6 +45,8 @@ error_status write_sett_to_flash(const struct settings_str* sett);
 
 void read_sett_from_flash(struct settings_str* sett);
 //------------------------------------------------------------------------------------------------------------------
+void clear_flash(uint32_t clear_addr);
+
 error_status write_data_to_flash(uint32_t write_addr, const uint8_t* data, uint32_t data_size);
 
 void read_data_from_flash(uint32_t read_addr, uint8_t* data, const uint32_t data_size);

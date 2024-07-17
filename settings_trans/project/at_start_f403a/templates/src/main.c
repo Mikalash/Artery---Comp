@@ -11,13 +11,15 @@ uint8_t g_speed = FAST;
 
 void button_exint_init(void);
 void button_isr(void);
-void plant_settings(uint32_t n_set);
+void plant_settings(uint32_t n_set, struct settings_str* sett);
 
 //-----------------------------------------------------------------------
 void EXINT0_IRQHandler(void)
 {
 	uint8_t data[sett_size];
 	
+	convert_sett_to_data(settings, data, sett_size);
+	write_usart(data, sett_size);
 	read_data_from_flash(FLASH_ADRESS, data, sett_size);
 	write_usart(data, sett_size);
 	
@@ -32,6 +34,10 @@ int main(void)
 
 	configurate_settings_trans();
 	
+	//plant_settings(settings);
+	if (settings->rpm == 18000)//test
+		debug_f(33);
+		
   while(1)
   {
     at32_led_toggle(LED2);
@@ -88,38 +94,44 @@ void button_isr(void)
   }
 }
 
-void plant_settings(uint32_t n_set)
+void plant_settings(uint32_t n_set, struct settings_str* sett)
 {
 	switch (n_set)
 	{
 		case 1:
-			settings.rpm = 228;
-			settings.direction = '0';
-			settings.temperature = 0;
-			settings.pressure = 3.14;
+			sett->rpm = 228;
+			sett->direction = '0';
+			sett->temperature = 0;
+			sett->pressure = 3.14;
 			break;
-			//data
+			//DATA
 			//228 0 0 0 48 0 0 0 0 0 0 0 195 245 72 64
-			//crc
+			//CRC
 			//230
+			//CRC of first 4 bytes
+			//184
 		case 2:
-			settings.rpm = 10000;
-			settings.direction = 'u';
-			settings.temperature = 36;
-			settings.pressure = 2.72;
+			sett->rpm = 10000;
+			sett->direction = 'u';
+			sett->temperature = 36;
+			sett->pressure = 2.72;
 			break;
-			//data
+			//DATA
 			//16 39 0 0 117 0 0 0 36 0 0 0 123 20 46 64
-			//crc
+			//CRC
 			//148
+			//CRC of first 4 bytes
+			//117
 		default:
-			settings.rpm = 18000;
-			settings.direction = 'd';
-			settings.temperature = 67;
-			settings.pressure = 288.666;
-			//data
+			sett->rpm = 18000;
+			sett->direction = 'd';
+			sett->temperature = 67;
+			sett->pressure = 288.666;
+			//DATA
 			//80 70 0 0 100 0 0 0 67 0 0 0 63 85 144 67
-			//crc
+			//CRC
 			//235
+			//CRC of first 4 bytes
+			//88
 	}
 }

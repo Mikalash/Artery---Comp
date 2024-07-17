@@ -1,13 +1,20 @@
 #include "settings_trans.h"
 
+void debug_f(uint8_t kek)
+{
+	write_usart(&kek, 1);
+}
+
 error_status convert_sett_to_data(const struct settings_str* sett, uint8_t* data, const uint32_t data_size)
 {
 	uint32_t i;
 	uint8_t* sett_address = (uint8_t*) sett;
 
+	if (sett == NULL || data == NULL)
+		return ERROR;
 	if (data_size != sett_size)
 		return ERROR;
-	
+		
 	for (i = 0; i < data_size; i++)
 		data[i] = sett_address[i];
 	return SUCCESS;
@@ -18,6 +25,8 @@ error_status convert_data_to_sett(struct settings_str* sett, const uint8_t* data
 	uint32_t i;
 	uint8_t* sett_address = (uint8_t*) sett;
 	
+	if (sett == NULL || data == NULL)
+		return ERROR;
 	if (data_size != sett_size)
 		return ERROR;
 	
@@ -28,26 +37,48 @@ error_status convert_data_to_sett(struct settings_str* sett, const uint8_t* data
 //------------------------------------------------------------------------------------------------------------------
 error_status write_sett_to_flash(const struct settings_str* sett)
 {
+	error_status result = ERROR;
+	uint8_t crc_val = 0;
 	uint8_t data[sett_size];
+	
+	if (sett == NULL)
+		return ERROR;
+	
 	convert_sett_to_data(sett, data, sett_size);
-	return write_data_to_flash(FLASH_ADRESS, data, sett_size);
+	crc_val = crc8(data, sett_size);
+	clear_flash(FLASH_ADRESS);
+	result = write_data_to_flash(FLASH_ADRESS, data, sett_size);
+	result &= write_data_to_flash(FLASH_ADRESS + sett_size, &crc_val, 1);
+	return result;
 }
 
 void read_sett_from_flash(struct settings_str* sett)
 {
 	uint8_t data[sett_size];
+	
+	if (sett == NULL)
+		return;
+	
 	read_data_from_flash(FLASH_ADRESS, data, sett_size);
 	convert_sett_to_data(sett, data, sett_size);
 }
 //------------------------------------------------------------------------------------------------------------------
+void clear_flash(uint32_t clear_addr)
+{
+	flash_unlock();
+	flash_sector_erase(clear_addr);
+	flash_lock();
+}
+
 error_status write_data_to_flash(uint32_t write_addr, const uint8_t* data, uint32_t data_size)
 {
 	uint32_t i;
 	flash_status_type status = FLASH_OPERATE_DONE;
+	
+	if (data == NULL)
+		return ERROR;
+	
 	flash_unlock();
-	
-	flash_sector_erase(FLASH_ADRESS);
-	
 	for(i = 0; i < data_size; i++)
 	{
 		status = flash_byte_program(write_addr, data[i]);
@@ -65,6 +96,10 @@ error_status write_data_to_flash(uint32_t write_addr, const uint8_t* data, uint3
 void read_data_from_flash(uint32_t read_addr, uint8_t* data, const uint32_t data_size)
 {
 	uint32_t i;
+	
+	if (data == NULL)
+		return;
+	
 	for(i = 0; i < data_size; i++)
 	{
 		data[i] = *(uint8_t*)(read_addr);
@@ -75,6 +110,10 @@ void read_data_from_flash(uint32_t read_addr, uint8_t* data, const uint32_t data
 void write_usart(const uint8_t* data, const uint32_t data_size)
 {
 	uint32_t i = 0;
+	
+	if (data == NULL)
+		return;
+	
 	for (; i < data_size; i++)
 	{
 		while (usart_flag_get(USART1, USART_TDBE_FLAG) == RESET);
@@ -85,6 +124,10 @@ void write_usart(const uint8_t* data, const uint32_t data_size)
 void read_usart(uint8_t* data, const uint32_t data_size)
 {
 	uint32_t i = 0;
+	
+	if (data == NULL)
+		return;
+	
 	for (; i < data_size; i++)
 	{
 		while (usart_flag_get(USART1, USART_RDBF_FLAG) == RESET);
@@ -100,6 +143,7 @@ void USART1_IRQHandler(void)
 	uint8_t end_byte = END_BYTE_DF;
 	
 	usart_interrupt_enable(USARTx, USART_RDBF_INT, FALSE);
+	
 	read_usart(&lead_byte, 1);
 	
 	if (lead_byte == LEAD_BYTE_RD)
@@ -108,9 +152,10 @@ void USART1_IRQHandler(void)
 		read_usart(&crc_val, 1);;
 		if (crc_val == crc8(data, sett_size))
 		{
-			//convert_data_to_sett(&settings, data, sett_size);
-			//write_sett_to_flash(&settings);
-			write_data_to_flash(FLASH_ADRESS, data, sett_size); //x2 faster
+			clear_flash(FLASH_ADRESS);
+			write_data_to_flash(FLASH_ADRESS, data, sett_size);
+			write_data_to_flash(FLASH_ADRESS + sett_size, &crc_val, 1);
+			//convert_data_to_sett(settings, data, sett_size);
 			end_byte = END_BYTE_CRC_OK;
 		}
 		else
@@ -119,14 +164,12 @@ void USART1_IRQHandler(void)
 	}
 	else if (lead_byte == LEAD_BYTE_WR)
 	{
-		//read_sett_from_flash(&settings);
-		//convert_sett_to_data(&settings, data, sett_size);
-		read_data_from_flash(FLASH_ADRESS, data, sett_size); //x2 faster
-		crc_val = crc8(data, sett_size);
+		read_data_from_flash(FLASH_ADRESS, data, sett_size);
+		read_data_from_flash(FLASH_ADRESS + sett_size, &crc_val, 1);
 		write_usart(data, sett_size);
 		write_usart(&crc_val, 1);
 		//not necessarily
-		//read_usart(&end_byte, 1);
+		read_usart(&end_byte, 1);
 	}
 	
 	usart_interrupt_enable(USARTx, USART_RDBF_INT, TRUE);
@@ -139,6 +182,10 @@ uint8_t crc8(const uint8_t* data, uint32_t data_size)
 	
 	uint8_t crc = 0xFF;
 	uint32_t i;
+	
+	if (data == NULL)
+		return 0;
+	
 	while (data_size--)
 	{
 		crc ^= *data++;
