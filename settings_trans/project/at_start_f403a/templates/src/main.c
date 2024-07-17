@@ -11,24 +11,17 @@ uint8_t g_speed = FAST;
 
 void button_exint_init(void);
 void button_isr(void);
-void plant_test_data(void);
-void plant_settings(void);
-void plant_settings_anth(void);
+void plant_settings(uint32_t n_set);
 
 //-----------------------------------------------------------------------
 void EXINT0_IRQHandler(void)
 {
 	uint8_t data[sett_size];
 	
-  button_isr();
-	
 	read_data_from_flash(FLASH_ADRESS, data, sett_size);
 	write_usart(data, sett_size);
 	
-	//test for Evgeniy
-	//write_usart(test_data, test_data_size);
-	
-	//delay_ms(g_speed * DELAY * 10);
+	button_isr();
 }
 //-----------------------------------------------------------------------
 int main(void)
@@ -95,32 +88,38 @@ void button_isr(void)
   }
 }
 
-void plant_test_data(void)
+void plant_settings(uint32_t n_set)
 {
-	if (test_data_size > 0)
-		test_data[0] = 228;
-	if (test_data_size > 1)
-		test_data[1] = 111;
-	if (test_data_size > 2)
-		test_data[2] = 118;
-	if (test_data_size > 3)
-		test_data[3] = 16;
-	if (test_data_size > 4)
-		test_data[4] = 204;
-}
-
-void plant_settings(void)
-{
-	settings.rpm = 18000;
-	settings.direction = 'd';
-	settings.temperature = 67;
-	settings.pressure = 288.666;
-}
-
-void plant_settings_anth(void)
-{
-	settings.rpm = 228;
-	settings.direction = '0';
-	settings.temperature = 0;
-	settings.pressure = 3.14;
+	switch (n_set)
+	{
+		case 1:
+			settings.rpm = 228;
+			settings.direction = '0';
+			settings.temperature = 0;
+			settings.pressure = 3.14;
+			break;
+			//data
+			//228 0 0 0 48 0 0 0 0 0 0 0 195 245 72 64
+			//crc
+			//230
+		case 2:
+			settings.rpm = 10000;
+			settings.direction = 'u';
+			settings.temperature = 36;
+			settings.pressure = 2.72;
+			break;
+			//data
+			//16 39 0 0 117 0 0 0 36 0 0 0 123 20 46 64
+			//crc
+			//148
+		default:
+			settings.rpm = 18000;
+			settings.direction = 'd';
+			settings.temperature = 67;
+			settings.pressure = 288.666;
+			//data
+			//80 70 0 0 100 0 0 0 67 0 0 0 63 85 144 67
+			//crc
+			//235
+	}
 }

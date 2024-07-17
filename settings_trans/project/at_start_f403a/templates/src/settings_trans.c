@@ -1,19 +1,5 @@
 #include "settings_trans.h"
 
-void debug_f(uint8_t kek)
-{
-	write_usart(&kek, 1);
-}
-
-void debug_buf(const uint8_t* data, const uint8_t data_size)
-{
-	uint32_t i = 0;
-	for (; i < data_size; i++)
-	{
-		debug_data[i] = data[i];
-	}
-}
-
 error_status convert_sett_to_data(const struct settings_str* sett, uint8_t* data, const uint32_t data_size)
 {
 	uint32_t i;
@@ -57,33 +43,33 @@ void read_sett_from_flash(struct settings_str* sett)
 error_status write_data_to_flash(uint32_t write_addr, const uint8_t* data, uint32_t data_size)
 {
 	uint32_t i;
-  flash_status_type status = FLASH_OPERATE_DONE;
+	flash_status_type status = FLASH_OPERATE_DONE;
 	flash_unlock();
 	
 	flash_sector_erase(FLASH_ADRESS);
 	
-  for(i = 0; i < data_size; i++)
-  {
-    status = flash_byte_program(write_addr, data[i]);
-    if(status != FLASH_OPERATE_DONE)
+	for(i = 0; i < data_size; i++)
+	{
+		status = flash_byte_program(write_addr, data[i]);
+		if(status != FLASH_OPERATE_DONE)
 		{
 			flash_lock();
-      return ERROR;
+			return ERROR;
 		}
-    write_addr++;
-  }
+		write_addr++;
+	}
 	flash_lock();
-  return SUCCESS;
+	return SUCCESS;
 }
 
 void read_data_from_flash(uint32_t read_addr, uint8_t* data, const uint32_t data_size)
 {
 	uint32_t i;
-  for(i = 0; i < data_size; i++)
-  {
-    data[i] = *(uint8_t*)(read_addr);
-    read_addr++;
-  }
+	for(i = 0; i < data_size; i++)
+	{
+		data[i] = *(uint8_t*)(read_addr);
+		read_addr++;
+	}
 }
 //------------------------------------------------------------------------------------------------------------------
 void write_usart(const uint8_t* data, const uint32_t data_size)
@@ -91,8 +77,8 @@ void write_usart(const uint8_t* data, const uint32_t data_size)
 	uint32_t i = 0;
 	for (; i < data_size; i++)
 	{
-			while (usart_flag_get(USART1, USART_TDBE_FLAG) == RESET);
-			usart_data_transmit(USART1, data[i]);
+		while (usart_flag_get(USART1, USART_TDBE_FLAG) == RESET);
+		usart_data_transmit(USART1, data[i]);
 	}
 }
 
@@ -101,8 +87,8 @@ void read_usart(uint8_t* data, const uint32_t data_size)
 	uint32_t i = 0;
 	for (; i < data_size; i++)
 	{
-			while (usart_flag_get(USART1, USART_RDBF_FLAG) == RESET);
-			data[i] = usart_data_receive(USART1);;
+		while (usart_flag_get(USART1, USART_RDBF_FLAG) == RESET);
+		data[i] = usart_data_receive(USART1);;
 	}
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -152,14 +138,14 @@ uint8_t crc8(const uint8_t* data, uint32_t data_size)
 	//return crc_block_calculate((uint32_t*) data_save, data_size_save);
 	
 	uint8_t crc = 0xFF;
-  uint32_t i;
-  while (data_size--)
-  {
+	uint32_t i;
+	while (data_size--)
+	{
 		crc ^= *data++;
-    for (i = 0; i < 8; i++)
+		for (i = 0; i < 8; i++)
 			crc = crc & 0x80 ? (crc << 1) ^ 0x31 : crc << 1;
-  }
-  return crc;
+	}
+	return crc;
 }
 //------------------------------------------------------------------------------------------------------------------
 void configurate_settings_trans(void)
@@ -202,20 +188,20 @@ void uart_configuration(void)
 
 	usart_init(USARTx, USART_BOUD, USART_DATA_8BITS, USART_STOP_1_BIT);
 	usart_transmitter_enable(USARTx, TRUE);
-  usart_receiver_enable(USARTx, TRUE);
+	usart_receiver_enable(USARTx, TRUE);
 	
 	usart_interrupt_enable(USARTx, USART_RDBF_INT, TRUE);
 	usart_interrupt_enable(USARTx, USART_TDBE_INT, FALSE);
 	usart_enable(USARTx, TRUE);
 	
 	nvic_priority_group_config(NVIC_PRIORITY_GROUP_4);
-  nvic_irq_enable(USARTx_IRQn, 0, 1);
+	nvic_irq_enable(USARTx_IRQn, 0, 1);
 }
 
 void crc_configuration(void)
 {
 	//enable crc clock
-  crm_periph_clock_enable(CRM_CRC_PERIPH_CLOCK, TRUE);
+	crm_periph_clock_enable(CRM_CRC_PERIPH_CLOCK, TRUE);
 	
 	crc_poly_size_set(CRC_POLY_SIZE_8B);
 	crc_init_data_set(0xFF);

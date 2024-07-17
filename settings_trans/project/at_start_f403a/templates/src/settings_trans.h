@@ -31,17 +31,9 @@ struct settings_str
 };
 
 #define sett_size sizeof(struct settings_str)
-//#define sett_size 5 //for debug
 
 static struct settings_str settings;
 
-//for tests
-static uint32_t test_data_size = 5;
-static uint8_t test_data[5];
-//for debug
-void debug_f(uint8_t kek);
-static uint8_t debug_data[63];
-void debug_buf(const uint8_t* data, const uint8_t data_size);
 //------------------------------------------------------------------------------------------------------------------
 error_status convert_sett_to_data(const struct settings_str* sett, uint8_t* data, const uint32_t data_size);
 
