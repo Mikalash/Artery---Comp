@@ -9,6 +9,7 @@
 
 uint8_t g_speed = FAST;
 
+void gpio_configuration(void);
 void button_exint_init(void);
 void button_isr(void);
 void plant_settings(uint32_t n_set, struct settings_str* sett);
@@ -16,12 +17,16 @@ void plant_settings(uint32_t n_set, struct settings_str* sett);
 //-----------------------------------------------------------------------
 void EXINT0_IRQHandler(void)
 {
-	uint8_t data[sett_size];
+	uint32_t i = 0;
+	uint8_t data[sett_size + 1];
 	
-	convert_sett_to_data(settings, data, sett_size);
-	write_usart(data, sett_size);
-	read_data_from_flash(FLASH_ADRESS, data, sett_size);
-	write_usart(data, sett_size);
+	//convert_sett_to_data(settings, data, sett_size);
+	//write_slip_uart(data, sett_size);
+	read_data_from_flash(FLASH_ADRESS, data, sett_size + 1);
+	//write_slip_uart(data, sett_size);
+	
+	for (i = 0; i < sett_size + 1; i++)
+		debug_f(data[i]);
 	
 	button_isr();
 }
@@ -32,12 +37,13 @@ int main(void)
 	at32_board_init();
 	button_exint_init();
 
-	configurate_settings_trans();
+	gpio_configuration();
+	slip_uart_configuration();
 	
 	//plant_settings(settings);
-	if (settings->rpm == 18000)//test
-		debug_f(33);
-		
+	//if (settings->rpm == 18000)//test
+		//debug_f(33);
+
 	while(1)
 	{
 		at32_led_toggle(LED2);
@@ -79,7 +85,7 @@ void button_exint_init(void)
   */
 void button_isr(void)
 {
-	delay_ms(50);
+	delay_ms(100);
 
 	/* clear interrupt pending bit */
 	exint_flag_clear(EXINT_LINE_0);
@@ -122,6 +128,18 @@ void plant_settings(uint32_t n_set, struct settings_str* sett)
 			//148
 			//CRC of first 4 bytes
 			//117
+		case 3:
+			settings->rpm = 192;
+			settings->direction = 'y';
+			settings->temperature = 219;
+			settings->pressure = 1.48;
+			break;
+			//DATA
+			//192 0 0 0 121 0 0 0 219 0 0 0 164 112 189 63
+			//CRC
+			//174
+			//CRC of first 4 bytes
+			//198
 		default:
 			sett->rpm = 18000;
 			sett->direction = 'd';
@@ -134,4 +152,30 @@ void plant_settings(uint32_t n_set, struct settings_str* sett)
 			//CRC of first 4 bytes
 			//88
 	}
+}
+
+void gpio_configuration(void)
+{
+	//gpio_conf
+	gpio_init_type gpio_init_struct;
+	//enable gpio clock
+	crm_periph_clock_enable(CRM_GPIOA_PERIPH_CLOCK, TRUE);
+
+	gpio_default_para_init(&gpio_init_struct);
+
+	//configure the usart tx pin 
+	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+	gpio_init_struct.gpio_mode = GPIO_MODE_MUX;
+	gpio_init_struct.gpio_pins = USART_TX_PIN;
+	gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
+	gpio_init(GPIOA, &gpio_init_struct);
+
+	//configure the usart rx pin
+	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+	gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
+	gpio_init_struct.gpio_pins = USART_RX_PIN;
+	gpio_init_struct.gpio_pull = GPIO_PULL_UP;
+	gpio_init(GPIOA, &gpio_init_struct);
 }
