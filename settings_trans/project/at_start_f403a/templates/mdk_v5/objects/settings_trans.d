@@ -39,3 +39,4 @@
 .\objects\settings_trans.o: ..\..\..\..\libraries\drivers\inc\at32f403a_407_usb.h
 .\objects\settings_trans.o: ..\..\..\..\libraries\drivers\inc\at32f403a_407_emac.h
 .\objects\settings_trans.o: ..\inc\at32f403a_407_clock.h
+.\objects\settings_trans.o: ..\src\slip_uart.h
