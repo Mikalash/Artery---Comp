@@ -1,13 +1,15 @@
 #include "slip_uart.h"
 
 //------------------------------------------------------------------------------------------------------------------
-uint8_t uart_tx_buffer[UART_BUFFER_SIZE];
-volatile uint8_t uart_tx_counter = 0;
+//buffer with stuffed byted and END_BYTE wich go to UART
+static uint8_t uart_tx_buffer[UART_BUFFER_SIZE];
+volatile static uint32_t uart_tx_counter = 0;
 
-volatile uint8_t RX_BUFFER_READY = FALSE;
-
-uint8_t uart_rx_buffer[UART_BUFFER_SIZE];
-volatile uint8_t uart_rx_counter = 0;
+//buffer with stuffed byted and END_BYTE wich get from UART
+static uint8_t uart_rx_buffer[UART_BUFFER_SIZE];
+volatile static uint32_t uart_rx_counter = 0;
+//true when get END_BYTE from UART
+volatile static _Bool RX_BUFFER_READY = FALSE;
 //------------------------------------------------------------------------------------------------------------------
 void input_handler(void)
 {
@@ -80,7 +82,6 @@ uint32_t read_slip_uart(uint8_t* data, uint32_t data_size)
 void data_to_slip_buff(const uint8_t* data, uint32_t data_size)
 {
 	uint32_t i = 0;
-	//uint32_t j = 0;
 	
 	for(; i < data_size; i++)
 	{

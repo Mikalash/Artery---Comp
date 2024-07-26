@@ -2,6 +2,7 @@
 #include "at32f403a_407_clock.h"
 
 #include "settings_trans.h"
+#include "SystemParams_tag.h"
 
 #define DELAY                            50 //100
 #define FAST                             1
@@ -17,18 +18,22 @@ void plant_settings(uint32_t n_set, struct settings_str* sett);
 //-----------------------------------------------------------------------
 void EXINT0_IRQHandler(void)
 {
+	
 	uint32_t i = 0;
 	uint8_t data[sett_size + 1];
 	
 	//convert_sett_to_data(settings, data, sett_size);
 	//write_slip_uart(data, sett_size);
 	read_data_from_flash(FLASH_ADRESS, data, sett_size + 1);
-	//write_slip_uart(data, sett_size);
+	write_slip_uart(data, sett_size + 1);
 	
-	for (i = 0; i < sett_size + 1; i++)
-		debug_f(data[i]);
-	
+	//for (i = 0; i < sett_size + 1; i++)
+		//debug_f(data[i]);
+	//debug_f(sizeof(SystemParams_shell));
 	button_isr();
+	
+	//debug_f(228);
+	//button_isr();
 }
 //-----------------------------------------------------------------------
 int main(void)

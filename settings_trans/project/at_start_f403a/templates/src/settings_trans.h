@@ -44,4 +44,4 @@ void read_data_from_flash(uint32_t read_addr, uint8_t* data, const uint32_t data
 //------------------------------------------------------------------------------------------------------------------
 uint8_t crc8(const uint8_t* data, uint32_t data_size);
 
-void crc_configuration(void);
+//void crc_configuration(void);//crc integrated in artery

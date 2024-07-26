@@ -105,8 +105,8 @@ void read_data_from_flash(uint32_t read_addr, uint8_t* data, const uint32_t data
 //------------------------------------------------------------------------------------------------------------------
 uint8_t crc8(const uint8_t* data, uint32_t data_size)
 {
-	//crc_data_reset(); //crc integrated in artery, to use it, uncommit crc_configuration() in configurate_settings_trans()
-	//return crc_block_calculate((uint32_t*) data_save, data_size_save);
+	//crc_data_reset(); //crc integrated in artery
+	//return crc_block_calculate((uint32_t*) data_save, data_size_save);//crc integrated in artery
 	
 	uint8_t crc = 0xFF;
 	uint32_t i;
@@ -123,7 +123,8 @@ uint8_t crc8(const uint8_t* data, uint32_t data_size)
 	return crc;
 }
 
-void crc_configuration(void)
+/*
+void crc_configuration(void)//crc integrated in artery
 {
 	//enable crc clock
 	crm_periph_clock_enable(CRM_CRC_PERIPH_CLOCK, TRUE);
@@ -132,3 +133,4 @@ void crc_configuration(void)
 	crc_init_data_set(0xFF);
 	crc_poly_value_set(0x31);
 }
+*/

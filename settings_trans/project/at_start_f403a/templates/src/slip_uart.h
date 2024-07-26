@@ -2,6 +2,7 @@
 
 #include "at32f403a_407_board.h"
 #include "at32f403a_407_clock.h"
+
 #include "settings_trans.h"
 
 //uart configuration
@@ -13,7 +14,12 @@
 #define USART_BOUD 9600
 
 //uart max data len
-#define UART_MAX_DATA_SIZE 7
+#ifdef sett_size
+	#define UART_MAX_DATA_SIZE sett_size + 2
+#else
+	#define UART_MAX_DATA_SIZE 256
+#endif
+
 #define UART_BUFFER_SIZE (UART_MAX_DATA_SIZE * 2 + 1)
 
 //byte stuffing
@@ -35,4 +41,5 @@ uint32_t slip_buff_to_data(uint8_t* data, uint32_t data_size);
 void USART1_IRQHandler(void);
 //------------------------------------------------------------------------------------------------------------------
 void slip_uart_configuration(void);
+
 void debug_f(uint8_t kek);
