@@ -43,8 +43,8 @@ int main(void)
 	button_exint_init();
 
 	gpio_configuration();
-	slip_uart_configuration();
-	
+	slip_uart_configuration(input_handler);
+	//debug_f(228);
 	//plant_settings(settings);
 	//if (settings->rpm == 18000)//test
 		//debug_f(33);

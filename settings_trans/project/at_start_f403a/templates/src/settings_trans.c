@@ -1,5 +1,41 @@
 #include "settings_trans.h"
 
+void input_handler(void)
+{
+	//uint32_t i = 0;
+	uint8_t crc_val = 0;
+	
+	uint8_t data[sett_size + 2];
+	uint32_t data_size = sett_size + 2;
+	
+	data_size = read_slip_uart(data, data_size);
+	
+	if (data_size == sett_size + 2 && data[0] == KEY_1)//read settings
+	{
+		//crc chek
+		crc_val = crc8(&data[1], sett_size);
+		if (crc_val == data[sett_size + 1])
+		{
+			clear_flash(FLASH_ADRESS);
+			write_data_to_flash(FLASH_ADRESS, &data[1], sett_size + 2);
+			data[0] = KEY_OK;
+		}
+		else
+			data[0] = KEY_ER;
+		write_slip_uart(data, 1);
+		return;
+	}
+	
+	if (data_size == 1 && data[0] == KEY_2)//write settings
+	{
+		read_data_from_flash(FLASH_ADRESS, data, sett_size + 1);
+		write_slip_uart(data, sett_size + 1); 
+		return;
+	}
+
+	data[0] = KEY_ER;
+	write_slip_uart(data, 1);
+}
 //------------------------------------------------------------------------------------------------------------------
 error_status convert_sett_to_data(const struct settings_str* sett, uint8_t* data, const uint32_t data_size)
 {

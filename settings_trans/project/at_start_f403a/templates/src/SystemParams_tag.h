@@ -57,6 +57,8 @@ typedef struct {
 
 typedef struct {
 	//SystemParams_type SystemParams;//124 bytes
-	SystemParams_type_test SystemParams;//4 bytes //FOR TEST pi pi
+	SystemParams_type_test SystemParams;//4 bytes //FOR TEST
 	uint8_t SystemParams_crc;//4 bytes            //CRC of SystemParams
 } SystemParams_shell;
+
+#define SystemParams_shell_size sizeof(SystemParams_shell)
