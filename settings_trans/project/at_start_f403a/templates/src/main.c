@@ -1,53 +1,43 @@
 #include "at32f403a_407_board.h"
 #include "at32f403a_407_clock.h"
 
-#include "settings_trans.h"
 #include "SystemParams_tag.h"
+#include "SystemParams_trans.h"
 
 #define DELAY                            50 //100
 #define FAST                             1
-#define SLOW                             1 //4
+#define SLOW                             1  //4
 
 uint8_t g_speed = FAST;
 
 void gpio_configuration(void);
 void button_exint_init(void);
 void button_isr(void);
-void plant_settings(uint32_t n_set, struct settings_str* sett);
 
 //-----------------------------------------------------------------------
 void EXINT0_IRQHandler(void)
 {
+	uint8_t data[SP_shell_size];
 	
-	uint32_t i = 0;
-	uint8_t data[sett_size + 1];
+	read_data_from_flash(FLASH_ADRESS, data, SP_shell_size);
+	write_slip_uart(data, SP_shell_size);
 	
-	//convert_sett_to_data(settings, data, sett_size);
-	//write_slip_uart(data, sett_size);
-	read_data_from_flash(FLASH_ADRESS, data, sett_size + 1);
-	write_slip_uart(data, sett_size + 1);
-	
-	//for (i = 0; i < sett_size + 1; i++)
-		//debug_f(data[i]);
-	//debug_f(sizeof(SystemParams_shell));
 	button_isr();
 	
-	//debug_f(228);
-	//button_isr();
 }
 //-----------------------------------------------------------------------
 int main(void)
 {
+	SystemParams_type SP;
+	
 	system_clock_config();
 	at32_board_init();
 	button_exint_init();
 
 	gpio_configuration();
-	slip_uart_configuration(input_handler);
-	//debug_f(228);
-	//plant_settings(settings);
-	//if (settings->rpm == 18000)//test
-		//debug_f(33);
+	
+	init_SystemParams_type(&SP);
+	configurate_SystemParams_trans();
 
 	while(1)
 	{
@@ -102,60 +92,6 @@ void button_isr(void)
 			g_speed = FAST;
 		else
 			g_speed = SLOW;
-	}
-}
-
-void plant_settings(uint32_t n_set, struct settings_str* sett)
-{
-	switch (n_set)
-	{
-		case 1:
-			sett->rpm = 228;
-			sett->direction = '0';
-			sett->temperature = 0;
-			sett->pressure = 3.14;
-			break;
-			//DATA
-			//228 0 0 0 48 0 0 0 0 0 0 0 195 245 72 64
-			//CRC
-			//230
-			//CRC of first 4 bytes
-			//184
-		case 2:
-			sett->rpm = 10000;
-			sett->direction = 'u';
-			sett->temperature = 36;
-			sett->pressure = 2.72;
-			break;
-			//DATA
-			//16 39 0 0 117 0 0 0 36 0 0 0 123 20 46 64
-			//CRC
-			//148
-			//CRC of first 4 bytes
-			//117
-		case 3:
-			settings->rpm = 192;
-			settings->direction = 'y';
-			settings->temperature = 219;
-			settings->pressure = 1.48;
-			break;
-			//DATA
-			//192 0 0 0 121 0 0 0 219 0 0 0 164 112 189 63
-			//CRC
-			//174
-			//CRC of first 4 bytes
-			//198
-		default:
-			sett->rpm = 18000;
-			sett->direction = 'd';
-			sett->temperature = 67;
-			sett->pressure = 288.666;
-			//DATA
-			//80 70 0 0 100 0 0 0 67 0 0 0 63 85 144 67
-			//CRC
-			//235
-			//CRC of first 4 bytes
-			//88
 	}
 }
 

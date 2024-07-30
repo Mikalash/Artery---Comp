@@ -3,26 +3,14 @@
 #include "at32f403a_407_board.h"
 #include "at32f403a_407_clock.h"
 
-//configuration
+//adress in flash to keep SystemParams_shell
 #define FLASH_ADRESS 0x080FF800
+//define this if your want update sturct wich were pushed to init_SystemParams_type when get new one in uart
+#define UPDATE_USER_SP_BY_INTERRUPT
 
-//structure with settings and its size
-struct settings_str
-{
-	int rpm;
-	char direction;
-	int temperature;
-	float pressure;
-};
-//#define sett_size sizeof(struct settings_str)
-#define sett_size 4//for debug
-#define UART_MAX_DATA_SIZE sett_size + 2
-
-/*
 #include "SystemParams_tag.h"
+//define data_size to optimize slip_uart
 #define UART_MAX_DATA_SIZE SystemParams_shell_size + 1
-*/
-
 #include "slip_uart.h"
 
 //consts
@@ -31,28 +19,24 @@ struct settings_str
 #define KEY_OK 255
 #define KEY_ER 0
 
-static struct settings_str* settings = (struct settings_str*) FLASH_ADRESS;
+//------------------------------------------------------------------------------------------------------------------
+error_status init_SystemParams_type(SystemParams_type* user_SP_pointer);//initializes SP from defined flash adress
 
 //------------------------------------------------------------------------------------------------------------------
-void input_handler(void);//work when get END_BYTE in input
+void configurate_SystemParams_trans(void);//needed to push input_handler to slip_uart and configurate slip_uart
 
 //------------------------------------------------------------------------------------------------------------------
-error_status convert_sett_to_data(const struct settings_str* sett, uint8_t* data, const uint32_t data_size);
+void input_handler(void);//work when get END_BYTE (full package) in input
 
-error_status convert_data_to_sett(struct settings_str* sett, const uint8_t* data, const uint32_t data_size);
 //------------------------------------------------------------------------------------------------------------------
-error_status write_sett_to_flash(const struct settings_str* sett);
+error_status write_SP_type_to_flash(const SystemParams_type* user_SP_pointer);//write SP to defined flash adress
 
-void read_sett_from_flash(struct settings_str* sett);
 //------------------------------------------------------------------------------------------------------------------
 void clear_flash(uint32_t clear_addr);
 
 error_status write_data_to_flash(uint32_t write_addr, const uint8_t* data, uint32_t data_size);
 
 void read_data_from_flash(uint32_t read_addr, uint8_t* data, const uint32_t data_size);
+
 //------------------------------------------------------------------------------------------------------------------
 uint8_t crc8(const uint8_t* data, uint32_t data_size);
-
-//void crc_configuration(void);//crc integrated in artery
-
-//}

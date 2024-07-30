@@ -24,9 +24,8 @@ static void data_to_slip_buff(const uint8_t* data, uint32_t data_size);
 static uint32_t slip_buff_to_data(uint8_t* data, uint32_t data_size);
 
 //------------------------------------------------------------------------------------------------------------------
-void slip_uart_configuration(void (*user_rx_handler)(void))
+void configurate_slip_uart(void (*user_rx_handler)(void))
 {
-	//enable usart clock
 	crm_periph_clock_enable(CRM_USARTx_PERIPH_CLOCK, TRUE);
 
 	usart_init(USARTx, USART_BOUD, USART_DATA_8BITS, USART_STOP_1_BIT);
@@ -151,8 +150,7 @@ static uint32_t slip_buff_to_data(uint8_t* data, uint32_t data_size)
 }
 
 //------------------------------------------------------------------------------------------------------------------
-
-void debug_f(uint8_t kek)
+void debug_f(uint8_t kek)//FOR TEST
 {
 	if (no_slip_uart_init)
 		return;

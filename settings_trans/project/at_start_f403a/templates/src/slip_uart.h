@@ -26,6 +26,9 @@
 #define ESC_BYTE_STFF 221
 
 //------------------------------------------------------------------------------------------------------------------
+void configurate_slip_uart(void (*user_rx_handler)(void));
+
+//------------------------------------------------------------------------------------------------------------------
 uint32_t write_slip_uart(const uint8_t* data, uint32_t data_size);
 
 uint32_t read_slip_uart(uint8_t* data, uint32_t data_size);
@@ -34,7 +37,4 @@ uint32_t read_slip_uart(uint8_t* data, uint32_t data_size);
 void USART1_IRQHandler(void);
 
 //------------------------------------------------------------------------------------------------------------------
-void slip_uart_configuration(void (*user_rx_handler)(void));
-
-//------------------------------------------------------------------------------------------------------------------
-void debug_f(uint8_t kek);
+void debug_f(uint8_t kek);//FOR TEST
