@@ -4,13 +4,13 @@
 #include "at32f403a_407_clock.h"
 
 //adress in flash to keep SystemParams_shell
-#define FLASH_ADRESS 0x080FF800
+#define SP_SHELL_FLASH_ADRESS 0x080FF800
 //define this if your want update sturct wich were pushed to init_SystemParams_type when get new one in uart
 #define UPDATE_USER_SP_BY_INTERRUPT
 
 #include "SystemParams_tag.h"
 //define data_size to optimize slip_uart
-#define UART_MAX_DATA_SIZE SystemParams_shell_size + 1
+#define SLIP_UART_MAX_DATA_SIZE SystemParams_shell_size + 1
 #include "slip_uart.h"
 
 //consts

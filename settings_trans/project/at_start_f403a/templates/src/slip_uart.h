@@ -9,15 +9,15 @@
 #define CRM_USARTx_PERIPH_CLOCK CRM_USART1_PERIPH_CLOCK
 #define USART_TX_PIN GPIO_PINS_9
 #define USART_RX_PIN GPIO_PINS_10
-#define USART_BOUD 9600
+#define USART_BOUD 115200
 
 //uart max data len
 //you can define yout own size before include slip_uart
-#ifndef UART_MAX_DATA_SIZE
-	#define UART_MAX_DATA_SIZE 256
+#ifndef SLIP_UART_MAX_DATA_SIZE
+	#define SLIP_UART_MAX_DATA_SIZE 256
 #endif
 //uart buffers len
-#define UART_BUFFER_SIZE (UART_MAX_DATA_SIZE * 2 + 1)
+#define UART_BUFFER_SIZE (SLIP_UART_MAX_DATA_SIZE * 2 + 1)
 
 //byte stuffing
 #define END_BYTE 192
@@ -35,6 +35,3 @@ uint32_t read_slip_uart(uint8_t* data, uint32_t data_size);
 
 //------------------------------------------------------------------------------------------------------------------
 void USART1_IRQHandler(void);
-
-//------------------------------------------------------------------------------------------------------------------
-void debug_f(uint8_t kek);//FOR TEST

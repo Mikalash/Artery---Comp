@@ -26,8 +26,29 @@ static uint32_t slip_buff_to_data(uint8_t* data, uint32_t data_size);
 //------------------------------------------------------------------------------------------------------------------
 void configurate_slip_uart(void (*user_rx_handler)(void))
 {
+	gpio_init_type gpio_init_struct;
+	//enable gpio ans uart clock
 	crm_periph_clock_enable(CRM_USARTx_PERIPH_CLOCK, TRUE);
+	crm_periph_clock_enable(CRM_GPIOA_PERIPH_CLOCK, TRUE);
+	gpio_default_para_init(&gpio_init_struct);
+	
+	//configure the usart tx pin 
+	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+	gpio_init_struct.gpio_mode = GPIO_MODE_MUX;
+	gpio_init_struct.gpio_pins = USART_TX_PIN;
+	gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
+	gpio_init(GPIOA, &gpio_init_struct);
 
+	//configure the usart rx pin
+	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+	gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
+	gpio_init_struct.gpio_pins = USART_RX_PIN;
+	gpio_init_struct.gpio_pull = GPIO_PULL_UP;
+	gpio_init(GPIOA, &gpio_init_struct);
+	
+	//configure usart
 	usart_init(USARTx, USART_BOUD, USART_DATA_8BITS, USART_STOP_1_BIT);
 	usart_transmitter_enable(USARTx, TRUE);
 	usart_receiver_enable(USARTx, TRUE);
@@ -39,8 +60,9 @@ void configurate_slip_uart(void (*user_rx_handler)(void))
 	nvic_priority_group_config(NVIC_PRIORITY_GROUP_4);
 	nvic_irq_enable(USARTx_IRQn, 0, 0);
 	
+	//user handler
 	rx_handler = user_rx_handler;
-	
+	//was init flag
 	no_slip_uart_init = FALSE;
 }
 
@@ -51,8 +73,8 @@ uint32_t write_slip_uart(const uint8_t* data, uint32_t data_size)
 	
 	if (data == NULL  || no_slip_uart_init)
 		return 0;
-	if (data_size > UART_MAX_DATA_SIZE)
-		data_size = UART_MAX_DATA_SIZE;
+	if (data_size > SLIP_UART_MAX_DATA_SIZE)
+		data_size = SLIP_UART_MAX_DATA_SIZE;
 	
 	data_to_slip_buff(data, data_size);
 	
@@ -147,14 +169,4 @@ static uint32_t slip_buff_to_data(uint8_t* data, uint32_t data_size)
 	}
 	
 	return i;
-}
-
-//------------------------------------------------------------------------------------------------------------------
-void debug_f(uint8_t kek)//FOR TEST
-{
-	if (no_slip_uart_init)
-		return;
-	
-	while (usart_flag_get(USART1, USART_TDBE_FLAG) == RESET);
-	usart_data_transmit(USART1, kek);
 }

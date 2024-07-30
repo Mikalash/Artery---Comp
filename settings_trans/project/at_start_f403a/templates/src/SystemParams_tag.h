@@ -24,7 +24,7 @@ typedef enum {                                  //Supported position sensor type
 	SensorLessType,
 	HandModeSensor
 } posSensorType;
-/*
+
 typedef struct SystemParams_tag {
 	FuncLimits_st FuncLimits;//24 bytes
 	posSensorType posSensor;//4 bytes             //Position sensor type
@@ -50,15 +50,10 @@ typedef struct SystemParams_tag {
 	uint16_t phase_inverse;//2 bytes              //Inverter output phase rotation bit
 	_Bool StaticInductionFlg;//2 bytes            //Flag for working with static inductances
 } SystemParams_type;
-*/
-typedef struct {
-	float pi_pi;                                  //pi pi     //FOR TEST
-} SystemParams_type;
 
 #pragma pack(push, 1)
 typedef struct {
-	//SystemParams_type SystemParams;//124 bytes
-	SystemParams_type SystemParams;//4 bytes             //FOR TEST
+	SystemParams_type SystemParams;//124 bytes
 	uint8_t SystemParams_crc;//4 bytes            //CRC of SystemParams
 } SystemParams_shell;
 #pragma pack(pop)

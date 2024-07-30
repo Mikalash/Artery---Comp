@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------------------------------------------
 error_status init_SystemParams_type(SystemParams_type* user_SP_pointer)
 {
-	SystemParams_shell* SP_shell = (SystemParams_shell*) FLASH_ADRESS;
+	SystemParams_shell* SP_shell = (SystemParams_shell*) SP_SHELL_FLASH_ADRESS;
 	uint8_t crc_val = 0;
 
 	if (user_SP_pointer == NULL)
@@ -47,8 +47,8 @@ void input_handler(void)
 		crc_val = crc8((uint8_t*) &SP_shell->SystemParams, SP_type_size);
 		if (crc_val == SP_shell->SystemParams_crc)
 		{
-			clear_flash(FLASH_ADRESS);
-			if (write_data_to_flash(FLASH_ADRESS, (uint8_t*) SP_shell, SP_shell_size) == SUCCESS)
+			clear_flash(SP_SHELL_FLASH_ADRESS);
+			if (write_data_to_flash(SP_SHELL_FLASH_ADRESS, (uint8_t*) SP_shell, SP_shell_size) == SUCCESS)
 			{
 				#ifdef UPDATE_USER_SP_BY_INTERRUPT
 					if (SP_init_pointer != NULL)
@@ -67,7 +67,7 @@ void input_handler(void)
 	
 	if (data_size == 1 && data[0] == KEY_2)//write settings
 	{
-		read_data_from_flash(FLASH_ADRESS, data, SP_shell_size);
+		read_data_from_flash(SP_SHELL_FLASH_ADRESS, data, SP_shell_size);
 		write_slip_uart(data, SP_shell_size); 
 		return;
 	}
@@ -87,8 +87,8 @@ error_status write_SP_type_to_flash(const SystemParams_type* user_SP_pointer)
 	SP_shell.SystemParams = *user_SP_pointer;
 	SP_shell.SystemParams_crc = crc8((uint8_t*) user_SP_pointer, SP_type_size);
 	
-	clear_flash(FLASH_ADRESS);
-	return write_data_to_flash(FLASH_ADRESS, (uint8_t*) &SP_shell, SP_shell_size);
+	clear_flash(SP_SHELL_FLASH_ADRESS);
+	return write_data_to_flash(SP_SHELL_FLASH_ADRESS, (uint8_t*) &SP_shell, SP_shell_size);
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ uint8_t crc8(const uint8_t* data, uint32_t data_size)
 {
 	uint8_t crc = 0xFF;
 	uint32_t i;
-	
+
 	if (data == NULL)
 		return 0;
 	

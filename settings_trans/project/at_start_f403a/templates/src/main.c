@@ -19,11 +19,10 @@ void EXINT0_IRQHandler(void)
 {
 	uint8_t data[SP_shell_size];
 	
-	read_data_from_flash(FLASH_ADRESS, data, SP_shell_size);
+	read_data_from_flash(SP_SHELL_FLASH_ADRESS, data, SP_shell_size);
 	write_slip_uart(data, SP_shell_size);
 	
 	button_isr();
-	
 }
 //-----------------------------------------------------------------------
 int main(void)
@@ -103,20 +102,4 @@ void gpio_configuration(void)
 	crm_periph_clock_enable(CRM_GPIOA_PERIPH_CLOCK, TRUE);
 
 	gpio_default_para_init(&gpio_init_struct);
-
-	//configure the usart tx pin 
-	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
-	gpio_init_struct.gpio_mode = GPIO_MODE_MUX;
-	gpio_init_struct.gpio_pins = USART_TX_PIN;
-	gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
-	gpio_init(GPIOA, &gpio_init_struct);
-
-	//configure the usart rx pin
-	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
-	gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
-	gpio_init_struct.gpio_pins = USART_RX_PIN;
-	gpio_init_struct.gpio_pull = GPIO_PULL_UP;
-	gpio_init(GPIOA, &gpio_init_struct);
 }
