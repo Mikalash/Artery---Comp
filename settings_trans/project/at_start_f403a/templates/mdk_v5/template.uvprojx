@@ -398,16 +398,6 @@
               <FilePath>..\src\main.c</FilePath>
             </File>
             <File>
-              <FileName>settings_trans.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\settings_trans.c</FilePath>
-            </File>
-            <File>
-              <FileName>settings_trans.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\settings_trans.h</FilePath>
-            </File>
-            <File>
               <FileName>slip_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\slip_uart.c</FilePath>
@@ -421,6 +411,16 @@
               <FileName>SystemParams_tag.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\src\SystemParams_tag.h</FilePath>
+            </File>
+            <File>
+              <FileName>SystemParams_trans.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\SystemParams_trans.c</FilePath>
+            </File>
+            <File>
+              <FileName>SystemParams_trans.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\SystemParams_trans.h</FilePath>
             </File>
           </Files>
         </Group>
