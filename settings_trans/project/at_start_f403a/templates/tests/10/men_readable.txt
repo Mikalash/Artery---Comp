@@ -1,0 +1,35 @@
+SystemParams.FuncLimits.Udc_high:         -9385
+SystemParams.FuncLimits.Udc_high_diap:    -9253
+SystemParams.FuncLimits.Udc_low:          -9253
+SystemParams.FuncLimits.Udc_low_diap:     -1317
+SystemParams.FuncLimits.Igbt_Thigh:       -13765
+SystemParams.FuncLimits.Igbt_Thigh_diap:  -17951
+SystemParams.FuncLimits.Motor_Thigh:      8896
+SystemParams.FuncLimits.Motor_Thigh_diap: -9234
+SystemParams.FuncLimits.Speed_fwd:        -9280
+SystemParams.FuncLimits.Speed_fwd_diap:   6107
+SystemParams.FuncLimits.Speed_rev:        56238
+SystemParams.FuncLimits.Speed_rev_diap:   50907
+SystemParams.posSensor:          HallType
+SystemParams.BW_reg_Inv:         0.000000
+SystemParams.FieldWeakingCoef:   -123769146310656000.000000
+SystemParams.LagCorrection:      -87883083939840.000000
+SystemParams.MaxCurrent:         -6.026752
+SystemParams.MaxIdCurrent:       -0.000000
+SystemParams.MinIdCurrent:       -6.854816
+SystemParams.MotorLd:            -123709703963279360.000000
+SystemParams.MotorLq:            -34005118801302644912075833344.000000
+SystemParams.MotorPoles:         -6.848981
+SystemParams.MotorRs:            -122643607181066240.000000
+SystemParams.Observer_LO:        -2.794364
+SystemParams.PwmBaseFrq:         871863.437500
+SystemParams.Rate_Down:          -123538609646075904.000000
+SystemParams.Rate_Up:            0.000000
+SystemParams.ResolverPoles:      -44262764721471488.000000
+SystemParams.UdcFiltTp:          3943184948337814456500224.000000
+SystemParams.correctionTheta:    0.000000
+SystemParams.hallTableDirect[6]:  63168 49209 40361 29121 49344 49360 
+SystemParams.hallTableInverse[6]: 54976 38495 49284 49349 13118 56259 
+SystemParams.StaticInductionFlg:  TRUE
+
+SystemParams_crc: 247
