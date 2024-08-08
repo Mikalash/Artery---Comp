@@ -11,7 +11,7 @@ error_status init_SystemParams_type(SystemParams_type* user_SP_pointer)
 	SystemParams_shell* SP_shell = (SystemParams_shell*) SP_SHELL_FLASH_ADRESS;
 	uint8_t crc_val = 0;
 
-	if (user_SP_pointer == NULL)
+	if (user_SP_pointer == NULL || !is_firmware_valid())
 		return ERROR;
 	
 	crc_val = crc8((uint8_t*) &SP_shell->SystemParams, SP_type_size);

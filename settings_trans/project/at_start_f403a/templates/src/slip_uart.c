@@ -4,11 +4,11 @@
 //false when slip_uart was initialized
 static _Bool no_slip_uart_init = TRUE;
 
-//buffer with stuffed data bytes and END_BYTE wich go to UART
+//buffer with stuffed data bytes and END_BYTE which go to UART
 volatile static uint8_t uart_tx_buffer[UART_BUFFER_SIZE];
 volatile static uint32_t uart_tx_counter = 0;
 
-//buffer with stuffed data bytes and END_BYTE wich get from UART
+//buffer with stuffed data bytes and END_BYTE which get from UART
 volatile static uint8_t uart_rx_buffer[UART_BUFFER_SIZE];
 volatile static uint32_t uart_rx_counter = 0;
 
@@ -18,9 +18,9 @@ volatile static _Bool RX_BUFFER_READY = FALSE;
 static void (*rx_handler)(void) = NULL;
 
 //------------------------------------------------------------------------------------------------------------------
-//function wich make byte stuffing inside write_slip_uart
+//function which make byte stuffing inside write_slip_uart
 static void data_to_slip_buff(const uint8_t* data, uint32_t data_size);
-//function wich make reverce byte stuffing inside read_slip_uart
+//function which make reverce byte stuffing inside read_slip_uart
 static uint32_t slip_buff_to_data(uint8_t* data, uint32_t data_size);
 
 //------------------------------------------------------------------------------------------------------------------

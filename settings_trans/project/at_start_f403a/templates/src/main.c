@@ -35,9 +35,17 @@ int main(void)
 
 	gpio_configuration();
 	
-	init_SystemParams_type(&SP);
+	//CLEAR FIRMWARE CRC FIRST WHEN REFLASH MC
+	//----------------------------------------
+	//clear_firmware_crc_from_flash();
+	//return 0;
+	//---------------------------------------
+	
 	configurate_SystemParams_trans();
-
+	
+	if (init_SystemParams_type(&SP) == ERROR)
+		return -1;
+	
 	while(1)
 	{
 		at32_led_toggle(LED2);

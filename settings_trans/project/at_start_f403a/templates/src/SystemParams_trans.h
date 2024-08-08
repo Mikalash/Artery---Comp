@@ -12,6 +12,7 @@
 //define data_size to optimize slip_uart
 #define SLIP_UART_MAX_DATA_SIZE SystemParams_shell_size + 1
 #include "slip_uart.h"
+#include "firmware_control.h"
 
 //consts
 #define KEY_1 255
