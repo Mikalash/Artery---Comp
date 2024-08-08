@@ -33,8 +33,10 @@ error_status record_firmware_crc_to_flash(const uint32_t crc)
 	flash_unlock();
 	flash_sector_erase(FW_CRC_STATUS_FLASH_ADRESS);
 	
-	er_status &= flash_word_program(FW_CRC_STATUS_FLASH_ADRESS, FW_CRC_RECORDED_STATUS);
-	er_status &= flash_word_program(FW_CRC_FLASH_ADRESS, crc);
+	if (flash_word_program(FW_CRC_STATUS_FLASH_ADRESS, FW_CRC_RECORDED_STATUS) != FLASH_OPERATE_DONE)
+		er_status = ERROR;
+	if (flash_word_program(FW_CRC_FLASH_ADRESS, crc) != FLASH_OPERATE_DONE)
+		er_status = ERROR;
 	
 	if (er_status == ERROR)
 		flash_sector_erase(FW_CRC_STATUS_FLASH_ADRESS);
@@ -45,11 +47,13 @@ error_status record_firmware_crc_to_flash(const uint32_t crc)
 
 error_status clear_firmware_crc_from_flash(void)
 {
-	error_status er_status = SUCCESS;
+	flash_status_type status = FLASH_OPERATE_DONE;
 	
 	flash_unlock();
-	flash_sector_erase(FW_CRC_STATUS_FLASH_ADRESS);
+	status = flash_sector_erase(FW_CRC_STATUS_FLASH_ADRESS);
 	flash_lock();
 	
-	return er_status;
+	if (status == FLASH_OPERATE_DONE)
+		return SUCCESS;
+	return ERROR;
 }
