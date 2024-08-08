@@ -422,6 +422,16 @@
               <FileType>5</FileType>
               <FilePath>..\src\SystemParams_trans.h</FilePath>
             </File>
+            <File>
+              <FileName>firmware_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\firmware_control.c</FilePath>
+            </File>
+            <File>
+              <FileName>firmware_control.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\firmware_control.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
