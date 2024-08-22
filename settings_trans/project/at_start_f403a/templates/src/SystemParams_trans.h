@@ -5,23 +5,35 @@
 
 //adress in flash to keep SystemParams_shell
 #define SP_SHELL_FLASH_ADRESS 0x080FF800
-//define this if your want update sturct wich were pushed to init_SystemParams_type when get new one in uart
-#define UPDATE_USER_SP_BY_INTERRUPT
 
-#include "SystemParams_tag.h"
+//#include "SystemParams_tag.h"
+//#include "rtwtypes.h"
+#include "systemDefinations.h"
+
+#pragma pack(push, 1)
+typedef struct {
+	SystemParams_st SystemParams;//124 bytes
+	uint8_t SystemParams_crc;//4 bytes            //CRC of SystemParams
+} SystemParams_shell;
+#pragma pack(pop)
+
+#define SP_type_size sizeof(SystemParams_st)
+#define SP_shell_size sizeof(SystemParams_shell)
+	
 //define data_size to optimize slip_uart
 #define SLIP_UART_MAX_DATA_SIZE SystemParams_shell_size + 1
 #include "slip_uart.h"
-#include "firmware_control.h"
 
 //consts
-#define KEY_1 255
-#define KEY_2 0
+#define KEY_1 255 //read settings from gui
+#define KEY_2 0   //write settings from flash to gui
+#define KEY_3 111 //write settings to flash
 #define KEY_OK 255
 #define KEY_ER 0
 
 //------------------------------------------------------------------------------------------------------------------
-error_status init_SystemParams_type(SystemParams_type* user_SP_pointer);//initializes SP from defined flash adress
+error_status init_SystemParams_type(SystemParams_st* user_SP_pointer);//initializes SP from defined flash adress
+//this pointer will use to store data from gui also
 
 //------------------------------------------------------------------------------------------------------------------
 void configurate_SystemParams_trans(void);//needed to push input_handler to slip_uart and configurate slip_uart
@@ -30,7 +42,7 @@ void configurate_SystemParams_trans(void);//needed to push input_handler to slip
 void input_handler(void);//work when get END_BYTE (full package) in input
 
 //------------------------------------------------------------------------------------------------------------------
-error_status write_SP_type_to_flash(const SystemParams_type* user_SP_pointer);//write SP to defined flash adress
+error_status write_SP_type_to_flash(const SystemParams_st* user_SP_pointer);//write SP to defined flash adress
 
 //------------------------------------------------------------------------------------------------------------------
 void clear_flash(uint32_t clear_addr);

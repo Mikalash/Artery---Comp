@@ -1,8 +1,11 @@
 #include "at32f403a_407_board.h"
 #include "at32f403a_407_clock.h"
 
-#include "SystemParams_tag.h"
+//#include "SystemParams_tag.h"
+#include "systemDefinations.h"
 #include "SystemParams_trans.h"
+
+SystemParams_st SP;
 
 #define DELAY                            50 //100
 #define FAST                             1
@@ -18,7 +21,6 @@ void button_isr(void);
 void EXINT0_IRQHandler(void)
 {
 	uint8_t data[SP_shell_size];
-	
 	read_data_from_flash(SP_SHELL_FLASH_ADRESS, data, SP_shell_size);
 	write_slip_uart(data, SP_shell_size);
 	
@@ -27,24 +29,15 @@ void EXINT0_IRQHandler(void)
 //-----------------------------------------------------------------------
 int main(void)
 {
-	SystemParams_type SP;
-	
 	system_clock_config();
 	at32_board_init();
 	button_exint_init();
 
 	gpio_configuration();
 	
-	//CLEAR FIRMWARE CRC FIRST WHEN REFLASH MC
-	//----------------------------------------
-	//clear_firmware_crc_from_flash();
-	//return 0;
-	//---------------------------------------
 	
 	configurate_SystemParams_trans();
-	
-	if (init_SystemParams_type(&SP) == ERROR)
-		return -1;
+	init_SystemParams_type(&SP);
 	
 	while(1)
 	{

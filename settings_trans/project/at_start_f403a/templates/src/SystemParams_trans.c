@@ -1,27 +1,30 @@
 #include "SystemParams_trans.h"
 
 //------------------------------------------------------------------------------------------------------------------
-#ifdef UPDATE_USER_SP_BY_INTERRUPT
-	static volatile SystemParams_type* SP_init_pointer = NULL;
-#endif
+static volatile SystemParams_st* SP_init_pointer = NULL;
+
+static void key_1_f(uint8_t* data, uint32_t data_size);
+static void key_2_f(uint8_t* data, uint32_t data_size);
+static void key_3_f(uint8_t* data, uint32_t data_size);
 
 //------------------------------------------------------------------------------------------------------------------
-error_status init_SystemParams_type(SystemParams_type* user_SP_pointer)
+error_status init_SystemParams_type(SystemParams_st* user_SP_pointer)
 {
 	SystemParams_shell* SP_shell = (SystemParams_shell*) SP_SHELL_FLASH_ADRESS;
 	uint8_t crc_val = 0;
-
-	if (user_SP_pointer == NULL || !is_firmware_valid())
+	
+	SP_init_pointer = user_SP_pointer;
+	
+	if (SP_init_pointer == NULL)// || !is_firmware_valid()) //version chek
 		return ERROR;
 	
 	crc_val = crc8((uint8_t*) &SP_shell->SystemParams, SP_type_size);
+	
 	if (crc_val != SP_shell->SystemParams_crc)
 		return ERROR;
 	
 	*user_SP_pointer = SP_shell->SystemParams;
-	#ifdef UPDATE_USER_SP_BY_INTERRUPT
-		SP_init_pointer = user_SP_pointer;
-	#endif
+
 	return SUCCESS;
 }
 
@@ -34,50 +37,30 @@ void configurate_SystemParams_trans(void)
 //------------------------------------------------------------------------------------------------------------------
 void input_handler(void)
 {
-	uint8_t crc_val = 0;
-	
 	uint8_t data[SP_shell_size + 1];
 	uint32_t data_size = SP_shell_size + 1;
 	
 	data_size = read_slip_uart(data, data_size);
 	
-	if (data_size == SP_shell_size + 1 && data[0] == KEY_1)//read settings
+	switch(data[0])
 	{
-		SystemParams_shell* SP_shell = (SystemParams_shell*) &data[1];
-		crc_val = crc8((uint8_t*) &SP_shell->SystemParams, SP_type_size);
-		if (crc_val == SP_shell->SystemParams_crc)
-		{
-			clear_flash(SP_SHELL_FLASH_ADRESS);
-			if (write_data_to_flash(SP_SHELL_FLASH_ADRESS, (uint8_t*) SP_shell, SP_shell_size) == SUCCESS)
-			{
-				#ifdef UPDATE_USER_SP_BY_INTERRUPT
-					if (SP_init_pointer != NULL)
-						*SP_init_pointer = SP_shell->SystemParams;
-				#endif
-				data[0] = KEY_OK;
-			}
-			else
-				data[0] = KEY_ER;
-		}
-		else
+		case KEY_1:
+			key_1_f(data, data_size);
+			break;
+		case KEY_2:
+			key_2_f(data, data_size);
+			break;
+		case KEY_3:
+			key_3_f(data, data_size);
+			break;
+		default:
 			data[0] = KEY_ER;
-		write_slip_uart(data, 1);
-		return;
+			write_slip_uart(data, 1);
 	}
-	
-	if (data_size == 1 && data[0] == KEY_2)//write settings
-	{
-		read_data_from_flash(SP_SHELL_FLASH_ADRESS, data, SP_shell_size);
-		write_slip_uart(data, SP_shell_size); 
-		return;
-	}
-
-	data[0] = KEY_ER;
-	write_slip_uart(data, 1);
 }
 
 //------------------------------------------------------------------------------------------------------------------
-error_status write_SP_type_to_flash(const SystemParams_type* user_SP_pointer)
+error_status write_SP_type_to_flash(const SystemParams_st* user_SP_pointer)
 {
 	SystemParams_shell SP_shell;
 	
@@ -134,6 +117,58 @@ void read_data_from_flash(uint32_t read_addr, uint8_t* data, const uint32_t data
 		data[i] = *(uint8_t*)(read_addr);
 		read_addr++;
 	}
+}
+//------------------------------------------------------------------------------------------------------------------
+static void key_1_f(uint8_t* data, uint32_t data_size)
+{
+	SystemParams_shell* SP_shell = (SystemParams_shell*) &data[1];
+	uint8_t crc_val = 0;
+	
+	if (data_size != SP_shell_size + 1 || SP_init_pointer == NULL)
+	{
+		data[0] = KEY_ER;
+		write_slip_uart(data, 1);
+		return;
+	}
+	
+	crc_val = crc8((uint8_t*) &SP_shell->SystemParams, SP_type_size);
+	if (crc_val == SP_shell->SystemParams_crc)
+	{
+		*SP_init_pointer = SP_shell->SystemParams;
+		data[0] = KEY_OK;
+	}
+	else
+		data[0] = KEY_ER;		
+	write_slip_uart(data, 1);
+}
+
+static void key_2_f(uint8_t* data, uint32_t data_size)
+{
+	if (data_size != 1)
+	{
+		data[0] = KEY_ER;
+		write_slip_uart(data, 1);
+		return;
+	}
+	
+	read_data_from_flash(SP_SHELL_FLASH_ADRESS, data, SP_shell_size);
+	write_slip_uart(data, SP_shell_size);
+}
+
+static void key_3_f(uint8_t* data, uint32_t data_size)
+{
+	if (data_size != 1)
+	{
+		data[0] = KEY_ER;
+		write_slip_uart(data, 1);
+		return;
+	}
+	
+	if (write_SP_type_to_flash((SystemParams_st*) SP_init_pointer) == SUCCESS)
+			data[0] = KEY_OK;
+	else
+			data[0] = KEY_ER;
+	write_slip_uart(data, 1);
 }
 //------------------------------------------------------------------------------------------------------------------
 uint8_t crc8(const uint8_t* data, uint32_t data_size)
